@@ -11,14 +11,11 @@ E-commerce web app built with Next.js and Tailwind CSS.
 - React Hook Form
 
 ## Pages
-- / → Home
+- / → Home page with hero section
 - /login → Login
 - /register → Register
-- /products → Product listing
-- /cart → Shopping cart
-- /checkout → Checkout
-- /orders → Order history
-- /admin → Admin panel
+- /products → Product listing with search and filter
+- /products/[id] → Product details
 
 ## Setup
 1. Clone the repo
@@ -29,4 +26,6 @@ E-commerce web app built with Next.js and Tailwind CSS.
 http://localhost:3001
 
 ## Status
-Week 1 complete — Project setup done ✅
+Week 1 — Project setup
+Week 2 — Authentication system
+Week 3 — Product management
