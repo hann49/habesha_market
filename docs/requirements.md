@@ -2,17 +2,17 @@
 
 **Project Name:** Habesha Market  
 **Version:** 1.0  
-**Author:** Hanan Umer 
+**Author:** Hanan Umer
 **Date:** 2026-05-31  
-**Duration:** 7-10 days 
+**Duration:** 7-10 days
 
 ---
 
 ## 1. Project Overview
 
-Habesha Market is a beginner-friendly e-commerce web platform 
-where customers can browse Ethiopian/Habesha products, add 
-items to a cart, place orders, and track their purchases. 
+Habesha Market is a beginner-friendly e-commerce web platform
+where customers can browse Ethiopian/Habesha products, add
+items to a cart, place orders, and track their purchases.
 
 The system supports three user roles: Customer, Seller, and Admin.
 
@@ -29,17 +29,18 @@ The system supports three user roles: Customer, Seller, and Admin.
 
 ## 3. Target Users
 
-| Role     | Description                                          |
-|----------|------------------------------------------------------|
-| Customer | Anyone who wants to browse and buy products.         |
-| Seller   | A vendor who lists and sells products on the platform.|
-| Admin    | The platform owner who oversees the entire system.   |
+| Role     | Description                                            |
+| -------- | ------------------------------------------------------ |
+| Customer | Anyone who wants to browse and buy products.           |
+| Seller   | A vendor who lists and sells products on the platform. |
+| Admin    | The platform owner who oversees the entire system.     |
 
 ---
 
 ## 4. Functional Requirements
 
 ### 4.1 Authentication
+
 - Users can register with name, email, and password.
 - Users can log in and receive a JWT token.
 - Users can log out.
@@ -47,6 +48,7 @@ The system supports three user roles: Customer, Seller, and Admin.
 - Role-based access: customer, seller, admin.
 
 ### 4.2 Customer Features
+
 - View list of all products on homepage.
 - Search products by name.
 - Filter products by category and price.
@@ -58,6 +60,7 @@ The system supports three user roles: Customer, Seller, and Admin.
 - Track order status (pending → shipped → delivered).
 
 ### 4.3 Seller Features
+
 - Register as a seller / create seller profile.
 - Add new products (name, price, stock, image, category).
 - Update or delete own products.
@@ -66,12 +69,14 @@ The system supports three user roles: Customer, Seller, and Admin.
 - Update inventory (stock count).
 
 ### 4.4 Admin Features
+
 - View and manage all users (block, delete).
 - View and manage all products (remove inappropriate ones).
 - View platform statistics (total users, sales, orders).
 - Promote/demote user roles if needed.
 
 ### 4.5 Order Management
+
 - Customers can place orders from their cart.
 - Each order stores items, total price, and status.
 - Order status can be updated by seller/admin.
@@ -81,34 +86,35 @@ The system supports three user roles: Customer, Seller, and Admin.
 
 ## 5. Non-Functional Requirements
 
-| Category        | Requirement                                          |
-|-----------------|------------------------------------------------------|
-| Performance     | Pages should load in under 3 seconds.                |
-| Security        | Use JWT auth, hashed passwords, input validation.    |
-| Usability       | Simple, clean UI — mobile and desktop friendly.      |
-| Scalability     | Backend should support adding more features later.   |
-| Availability    | System should be available 99% of the time.          |
-| Maintainability | Code follows clean structure (modular NestJS).       |
+| Category        | Requirement                                        |
+| --------------- | -------------------------------------------------- |
+| Performance     | Pages should load in under 3 seconds.              |
+| Security        | Use JWT auth, hashed passwords, input validation.  |
+| Usability       | Simple, clean UI — mobile and desktop friendly.    |
+| Scalability     | Backend should support adding more features later. |
+| Availability    | System should be available 99% of the time.        |
+| Maintainability | Code follows clean structure (modular NestJS).     |
 
 ---
 
 ## 6. Technology Stack
 
-| Layer        | Technology                       |
-|--------------|----------------------------------|
-| Frontend     | Next.js, Tailwind CSS, Axios     |
-| Backend      | NestJS (Node.js + TypeScript)    |
-| Database     | PostgreSQL                       |
-| ORM          | TypeORM               |
-| Auth         | JWT + bcrypt                     |
+| Layer        | Technology                           |
+| ------------ | ------------------------------------ |
+| Frontend     | Next.js, Tailwind CSS, Axios         |
+| Backend      | NestJS (Node.js + TypeScript)        |
+| Database     | PostgreSQL                           |
+| ORM          | TypeORM                              |
+| Auth         | JWT + bcrypt                         |
 | Deployment   | Vercel (frontend) + Render (backend) |
-| Version Ctrl | Git + GitHub                     |
+| Version Ctrl | Git + GitHub                         |
 
 ---
 
 ## 7. Scope
 
 ### ✅ In Scope (will build)
+
 - User registration/login with JWT
 - Product browsing, search, filtering
 - Shopping cart and checkout
@@ -117,6 +123,7 @@ The system supports three user roles: Customer, Seller, and Admin.
 - Role-based access control
 
 ### ❌ Out of Scope (NOT in v1.0)
+
 - Online payment integration (Stripe/PayPal) — manual/cash on delivery for now
 - Real-time chat between buyer & seller
 - Mobile native app (only web)
@@ -147,11 +154,11 @@ The system supports three user roles: Customer, Seller, and Admin.
 ## 10. Success Criteria
 
 The project is considered successful when:
- ✅ A customer can register, browse, add to cart, and place an order.
- ✅ A seller can list and manage their products.
- ✅ An admin can manage users and view statistics.
- ✅ The system is deployed and accessible online.
- ✅ Code is on GitHub with clear documentation.
+✅ A customer can register, browse, add to cart, and place an order.
+✅ A seller can list and manage their products.
+✅ An admin can manage users and view statistics.
+✅ The system is deployed and accessible online.
+✅ Code is on GitHub with clear documentation.
 
 ---
 
