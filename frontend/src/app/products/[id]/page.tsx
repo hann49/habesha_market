@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
 
@@ -18,11 +18,11 @@ interface Product {
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -38,6 +38,21 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [params.id]);
+
+  const handleAddToCart = async () => {
+    setAddingToCart(true);
+    try {
+      await api.post("/cart/add", {
+        productId: product?.id,
+        quantity,
+      });
+      alert(`✅ Added ${quantity} x ${product?.name} to cart!`);
+    } catch (err) {
+      alert("Failed to add to cart. Please try again.");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -152,13 +167,15 @@ export default function ProductDetailPage() {
 
               {/* Add to Cart Button */}
               <button
-                disabled={product.stock === 0}
-                onClick={() =>
-                  alert(`Added ${quantity} x ${product.name} to cart!`)
-                }
+                disabled={product.stock === 0 || addingToCart}
+                onClick={handleAddToCart}
                 className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {product.stock > 0 ? "🛒 Add to Cart" : "Out of Stock"}
+                {addingToCart
+                  ? "Adding..."
+                  : product.stock > 0
+                    ? "🛒 Add to Cart"
+                    : "Out of Stock"}
               </button>
             </div>
           </div>
