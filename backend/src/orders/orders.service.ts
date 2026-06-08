@@ -35,13 +35,13 @@ export class OrdersService {
     );
 
     // Create order
- const newOrder = this.ordersRepository.create({
-   userId,
-   totalAmount,
-   fullName,
-   phone,
-   address,
- });
+    const newOrder = this.ordersRepository.create({
+      userId,
+      totalAmount,
+      fullName,
+      phone,
+      address,
+    });
     const savedOrder = await this.ordersRepository.save(newOrder);
 
     // Create order items
@@ -82,5 +82,22 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
     return order;
+  }
+  async getSellerOrders(sellerId: number): Promise<Order[]> {
+    const orders = await this.ordersRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.items', 'item')
+      .leftJoinAndSelect('item.product', 'product')
+      .where('product.sellerId = :sellerId', { sellerId })
+      .orderBy('order.createdAt', 'DESC')
+      .getMany();
+
+    return orders;
+  }
+
+  async updateOrderStatus(orderId: number, status: string): Promise<Order> {
+    const order = await this.getOrderById(orderId);
+    order.status = status as any;
+    return this.ordersRepository.save(order);
   }
 }

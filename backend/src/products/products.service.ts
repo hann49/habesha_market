@@ -28,6 +28,12 @@ export class ProductsService {
       order: { createdAt: 'DESC' },
     });
   }
+  async findBySeller(sellerId: number): Promise<Product[]> {
+    return this.productsRepository.find({
+      where: { sellerId },
+      order: { createdAt: 'DESC' },
+    });
+  }
 
   async findOne(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({
@@ -52,5 +58,10 @@ export class ProductsService {
     const product = await this.findOne(id);
     await this.productsRepository.remove(product);
     return { message: 'Product deleted successfully' };
+  }
+  async updateStock(id: number, stock: number): Promise<Product> {
+    const product = await this.findOne(id);
+    product.stock = stock;
+    return this.productsRepository.save(product);
   }
 }
