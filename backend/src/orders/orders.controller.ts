@@ -1,54 +1,47 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
+  Patch,
   Param,
-  ParseIntPipe,
+  Body,
   UseGuards,
   Request,
-  Patch,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('orders')
-@UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private ordersService: OrdersService) {}
 
-  @Post()
-  placeOrder(
-    @Request() req: any,
-    @Body() body: { fullName: string; phone: string; address: string },
-  ) {
-    return this.ordersService.placeOrder(
-      req.user.id,
-      body.fullName,
-      body.phone,
-      body.address,
-    );
-  }
-
-  @Get()
-  getUserOrders(@Request() req: any) {
-    return this.ordersService.getUserOrders(req.user.id);
-  }
-
-  @Get(':id')
-  getOrderById(@Param('id', ParseIntPipe) id: number) {
-    return this.ordersService.getOrderById(id);
-  }
-  @Get('seller/my-orders')
-  getSellerOrders(@Request() req: any) {
+  @Get('seller')
+  @UseGuards(JwtAuthGuard)
+  getSellerOrders(@Request() req) {
     return this.ordersService.getSellerOrders(req.user.id);
   }
 
+  @Get('buyer')
+  @UseGuards(JwtAuthGuard)
+  getBuyerOrders(@Request() req) {
+    return this.ordersService.getBuyerOrders(req.user.id);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  getOrderById(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.getOrderById(id);
+  }
+
   @Patch(':id/status')
-  updateStatus(
+  @UseGuards(JwtAuthGuard)
+  updateOrderStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { status: string },
   ) {
-    return this.ordersService.updateOrderStatus(id, body.status);
+    return this.ordersService.updateOrderStatus(
+      id,
+      body.status as 'pending' | 'shipped' | 'delivered' | 'cancelled',
+    );
   }
 }

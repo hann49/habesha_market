@@ -1,217 +1,212 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import api from '@/lib/api'
-import { useAuthStore } from '@/store/authStore'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
 
 interface OrderItem {
-  id: number
-  quantity: number
-  priceAtPurchase: number
-  product: {
-    name: string
-    sellerId: number
-  }
+  id: number;
+  product: { name: string; price: number };
+  quantity: number;
+  priceAtPurchase: number;
 }
 
 interface Order {
-  id: number
-  status: string
-  totalAmount: number
-  fullName: string
-  phone: string
-  address: string
-  createdAt: string
-  items: OrderItem[]
+  id: number;
+  buyer: { name: string; email: string };
+  items: OrderItem[];
+  totalPrice: number;
+  status: "pending" | "shipped" | "delivered" | "cancelled";
+  shippingAddress: string;
+  phoneNumber: string;
+  createdAt: string;
 }
 
 export default function SellerOrdersPage() {
-  const router = useRouter()
-  const { user } = useAuthStore()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState<number | null>(null)
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
+    if (!user || (user.role !== "seller" && user.role !== "admin")) {
+      router.push("/");
+      return;
     }
-    if (user.role !== 'seller' && user.role !== 'admin') {
-      router.push('/')
-      return
-    }
-    fetchOrders()
-  }, [user])
+    fetchOrders();
+  }, [user]);
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/orders/seller/my-orders')
-      setOrders(response.data)
+      const response = await api.get("/orders/seller");
+      setOrders(response.data);
     } catch (err) {
-      console.error('Failed to load orders')
+      console.error("Failed to load orders");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleStatusUpdate = async (orderId: number, status: string) => {
-    setUpdating(orderId)
+  const handleStatusUpdate = async (orderId: number, newStatus: string) => {
+    setUpdatingStatus(orderId);
     try {
-      await api.patch(`/orders/${orderId}/status`, { status })
-      setOrders(orders.map((o) =>
-        o.id === orderId ? { ...o, status } : o
-      ))
+      await api.patch(`/orders/${orderId}/status`, { status: newStatus });
+      setOrders(
+        orders.map((o) =>
+          o.id === orderId ? { ...o, status: newStatus as any } : o,
+        ),
+      );
+      alert("✅ Order status updated!");
     } catch (err) {
-      alert('Failed to update status')
+      alert("Failed to update status");
     } finally {
-      setUpdating(null)
+      setUpdatingStatus(null);
     }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-700'
-      case 'shipped': return 'bg-blue-100 text-blue-700'
-      case 'delivered': return 'bg-green-100 text-green-700'
-      case 'cancelled': return 'bg-red-100 text-red-700'
-      default: return 'bg-gray-100 text-gray-700'
-    }
-  }
-
-  const getNextStatus = (status: string) => {
-    switch (status) {
-      case 'pending': return 'shipped'
-      case 'shipped': return 'delivered'
-      default: return null
-    }
-  }
-
-  const getNextStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending': return '🚚 Mark as Shipped'
-      case 'shipped': return '✅ Mark as Delivered'
-      default: return null
-    }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-500">Loading orders...</p>
       </div>
-    )
+    );
   }
+
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-800",
+    shipped: "bg-blue-100 text-blue-800",
+    delivered: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-5xl mx-auto">
-
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-green-600">
-              📦 My Orders
-            </h1>
-            <p className="text-gray-500 mt-1">
-              Orders containing your products
-            </p>
-          </div>
-          <a
-            href="/seller/dashboard"
-            className="text-green-600 hover:underline"
-          >
-            ← Back to Dashboard
-          </a>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-green-600">📦 My Orders</h1>
+          <p className="text-gray-500 mt-1">
+            {orders.length} order{orders.length !== 1 ? "s" : ""}
+          </p>
         </div>
 
-        {/* Orders */}
         {orders.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <span className="text-6xl">📦</span>
-            <p className="text-gray-400 text-xl mt-4">
-              No orders yet!
-            </p>
+          <div className="text-center bg-white rounded-lg p-12">
+            <p className="text-gray-400 text-xl">No orders yet!</p>
           </div>
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white rounded-lg shadow-md p-6"
+                className="bg-white rounded-lg shadow-md overflow-hidden"
               >
                 {/* Order Header */}
-                <div className="flex justify-between items-start mb-4">
+                <div
+                  onClick={() =>
+                    setExpandedOrder(
+                      expandedOrder === order.id ? null : order.id,
+                    )
+                  }
+                  className="p-6 border-b border-gray-100 cursor-pointer hover:bg-gray-50 flex justify-between items-center"
+                >
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">
-                      Order #{order.id}
-                    </h2>
-                    <p className="text-gray-400 text-sm mt-1">
-                      {new Date(order.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                    <p className="text-gray-500 text-sm mt-1">
-                      👤 {order.fullName} | 📞 {order.phone}
-                    </p>
+                    <h3 className="text-lg font-bold">Order #{order.id}</h3>
                     <p className="text-gray-500 text-sm">
-                      📍 {order.address}
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-600 mt-1">
+                      👤 {order.buyer.name} ({order.buyer.email})
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
-                      {order.status}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        statusColors[order.status]
+                      }`}
+                    >
+                      {order.status.toUpperCase()}
                     </span>
                     <p className="text-2xl font-bold text-green-600 mt-2">
-                      {Number(order.totalAmount).toLocaleString()} ETB
+                      {Number(order.totalPrice).toLocaleString()} ETB
                     </p>
                   </div>
                 </div>
 
-                {/* Order Items */}
-                <div className="border-t border-gray-100 pt-4 mb-4">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-center py-2"
-                    >
-                      <p className="text-gray-700">
-                        {item.product.name}
-                        <span className="text-gray-400 text-sm ml-2">
-                          x{item.quantity}
-                        </span>
-                      </p>
-                      <p className="font-semibold text-gray-800">
-                        {(Number(item.priceAtPurchase) * item.quantity).toLocaleString()} ETB
-                      </p>
+                {/* Order Details (Expanded) */}
+                {expandedOrder === order.id && (
+                  <div className="p-6 bg-gray-50 border-t border-gray-100">
+                    {/* Items */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold text-gray-800 mb-3">
+                        Items:
+                      </h4>
+                      <div className="space-y-2">
+                        {order.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex justify-between bg-white p-3 rounded"
+                          >
+                            <span>
+                              {item.product.name} x{item.quantity}
+                            </span>
+                            <span className="font-semibold">
+                              {(
+                                Number(item.priceAtPurchase) * item.quantity
+                              ).toLocaleString()}{" "}
+                              ETB
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Action Button */}
-                {getNextStatus(order.status) && (
-                  <button
-                    onClick={() => handleStatusUpdate(
-                      order.id,
-                      getNextStatus(order.status)!
-                    )}
-                    disabled={updating === order.id}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                  >
-                    {updating === order.id
-                      ? 'Updating...'
-                      : getNextStatusLabel(order.status)}
-                  </button>
+                    {/* Shipping Info */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Shipping Info:
+                      </h4>
+                      <p className="text-gray-600">
+                        📍 {order.shippingAddress}
+                      </p>
+                      <p className="text-gray-600">📱 {order.phoneNumber}</p>
+                    </div>
+
+                    {/* Status Update */}
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-3">
+                        Update Status:
+                      </h4>
+                      <div className="flex gap-2">
+                        {["pending", "shipped", "delivered", "cancelled"].map(
+                          (status) => (
+                            <button
+                              key={status}
+                              onClick={() =>
+                                handleStatusUpdate(order.id, status)
+                              }
+                              disabled={updatingStatus === order.id}
+                              className={`px-4 py-2 rounded font-semibold transition ${
+                                order.status === status
+                                  ? "bg-green-600 text-white"
+                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              } disabled:opacity-50`}
+                            >
+                              {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
-
               </div>
             ))}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

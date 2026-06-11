@@ -2,55 +2,50 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   ManyToOne,
   OneToMany,
-  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
+import { Product } from '../products/product.entity';
 import { OrderItem } from './order-item.entity';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  SHIPPED = 'shipped',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  userId: number;
+  @Column({ name: 'buyer_id' })
+  buyerId: number;
+
+  @Column({ name: 'seller_id' })
+  sellerId: number;
+
+  @ManyToOne(() => User, { eager: true })
+  buyer: User;
+
+  @ManyToOne(() => User, { eager: true })
+  seller: User;
+
+  @OneToMany(() => OrderItem, (item) => item.order, { eager: true })
+  items: OrderItem[];
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  totalAmount: number;
+  totalPrice: number;
 
-  @Column({
-    type: 'enum',
-    enum: OrderStatus,
-    default: OrderStatus.PENDING,
-  })
-  status: OrderStatus;
+  @Column({ default: 'pending' })
+  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
 
   @Column({ nullable: true })
-  fullName: string;
+  shippingAddress: string;
 
   @Column({ nullable: true })
-  phone: string;
-
-  @Column({ nullable: true })
-  address: string;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
-  items: OrderItem[];
+  phoneNumber: string;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

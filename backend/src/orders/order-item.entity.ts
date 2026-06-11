@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from '../products/product.entity';
 
@@ -13,23 +7,21 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'order_id' })
   orderId: number;
 
-  @Column()
+  @ManyToOne(() => Order, (order) => order.items)
+  order: Order;
+
+  @Column({ name: 'product_id' })
   productId: number;
+
+  @ManyToOne(() => Product, { eager: true })
+  product: Product;
 
   @Column()
   quantity: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   priceAtPurchase: number;
-
-  @ManyToOne(() => Order, (order) => order.items)
-  @JoinColumn({ name: 'orderId' })
-  order: Order;
-
-  @ManyToOne(() => Product)
-  @JoinColumn({ name: 'productId' })
-  product: Product;
 }
