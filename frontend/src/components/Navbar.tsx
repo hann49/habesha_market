@@ -55,6 +55,14 @@ export default function Navbar() {
                     🏪 Dashboard
                   </Link>
                 )}
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="text-gray-600 hover:text-green-600 font-medium transition"
+                  >
+                    👑 Admin
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition"
